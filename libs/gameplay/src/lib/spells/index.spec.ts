@@ -62,7 +62,7 @@ function isDone(state: SpellState): boolean {
 // Returns the next states after simulating one frame of the spell
 function simulateSpell(
     prevSpellState: SpellState, prevPlayersState: PlayersState, prevGridState: GridState,
-): [SpellState, PlayersState, GridState] {
+): { spell: SpellState, players: PlayersState, grid: GridState } {
     const nextSpellState: SpellState = structuredClone(prevSpellState);
     const nextPlayersState: PlayersState = structuredClone(prevPlayersState);
     let nextGridState: GridState = structuredClone(prevGridState);
@@ -96,5 +96,5 @@ function simulateSpell(
     //     nextGridState = nextSpellState.definition.applyToGrid(nextGridState);
     // }
 
-    return [nextSpellState, nextPlayersState, nextGridState];
+    return { spell: nextSpellState, players: nextPlayersState, grid: nextGridState }
 }

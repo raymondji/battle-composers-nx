@@ -1,16 +1,15 @@
-import { PlayerId, PlayerState, simulatePlayer } from "./player";
+import { GridState } from "./grid";
+import { PlayerId, PlayersState, simulatePlayerActions, simulatePlayers } from "./player";
 import { RollbackGameEngine } from "./rollback";
-import { simulateSpells, SpellsState } from "./spells";
+import { simulateSpellEffects, simulateSpells, SpellsState } from "./spells";
 
 export interface GameState {
-  p1: PlayerState,
-  p2: PlayerState,
+  players: PlayersState,
   spells: SpellsState,
   grid: GridState,
 }
 
-// Inputs recorded during a particular frame
-export interface Inputs {
+export interface PlayerInputs {
   w: boolean,
   a: boolean,
   s: boolean,
@@ -22,13 +21,15 @@ export interface Inputs {
   space: boolean,
 }
 
-function simulate(state: GameState, inputs: Inputs): GameState {
-  const nextSpells = simulateSpells(state.spells);
-  const nextState = {
-    p1: simulatePlayer(state.p1, inputs, state.spells),
-    p2: simulatePlayer(state.p2, inputs, state.spells),
-    spells: nextSpells,
-  };
+export interface Inputs {
+  p1: PlayerInputs,
+  p2: PlayerInputs,
+}
+
+function simulate(prevState: GameState, inputs: Inputs): GameState {
+  const nextState: GameState = structuredClone(prevState);
+  simulateSpellEffects(nextState);
+  simulatePlayerActions(nextState, inputs);
   return nextState
 }
 
@@ -43,7 +44,7 @@ export interface Game {
 
 export function createGame(
   localPlayer: PlayerId, remotePlayer: PlayerId,
-  composers: Map<PlayerId, Composer>,
+  characters: Map<PlayerId, Characte>,
   getLocalInputs: (inputs: Inputs) => void): Game {
 }
 

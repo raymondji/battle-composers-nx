@@ -1,35 +1,18 @@
+import { PlayerId } from "../player";
+
 export interface GridState {
-    p1Box: BoundingBox,
-    p2Box: BoundingBox,
+    p1Zone: Tile[];
+    p2Zone: Tile[];
 }
 
 export interface GridObject {
     tiles: Tile[],
-    limits?: BoundingBox,
-}
-
-export interface BoundingBox {
-    minX: number,
-    maxX: number,
-    minY: number,
-    maxY: number,
+    zoneRestriction?: PlayerId, // if restricted, can only move within the player's tiles 
 }
 
 export interface Tile {
     x: number;
     y: number;
-}
-
-export function getBoundingBox(go: GridObject): BoundingBox {
-    const xVals = go.tiles.map(tile => tile.x);
-    const yVals = go.tiles.map(tile => tile.y);
-
-    return {
-        minX: Math.min(...xVals),
-        maxX: Math.max(...xVals),
-        minY: Math.min(...yVals),
-        maxY: Math.max(...yVals),
-    }
 }
 
 export function isColliding(go1: GridObject, go2: GridObject): boolean {
@@ -44,23 +27,23 @@ export function isColliding(go1: GridObject, go2: GridObject): boolean {
     return false;
 }
 
-export function moveRight(go: GridObject) {
-    return move(go, 1, 0);
+export function moveRight(go: GridObject, grid: GridState) {
+    move(go, grid, 1, 0);
 }
 
-export function moveLeft(go: GridObject) {
-    return move(go, -1, 0);
+export function moveLeft(go: GridObject, grid: GridState) {
+    move(go, grid, -1, 0);
 }
 
-export function moveUp(go: GridObject) {
-    return move(go, 0, -1);
+export function moveUp(go: GridObject, grid: GridState) {
+    move(go, grid, 0, -1);
 }
 
-export function moveDown(go: GridObject) {
-    return move(go, 0, 1);
+export function moveDown(go: GridObject, grid: GridState) {
+    move(go, grid, 0, 1);
 }
 
-function move(go: GridObject, deltaX: number, deltaY: number): GridObject {
+function move(go: GridObject, grid: GridState, deltaX: number, deltaY: number): GridObject {
     const nextGo: GridObject = structuredClone(go);
     nextGo.tiles = go.tiles.map(tile => {
         return {
@@ -68,19 +51,24 @@ function move(go: GridObject, deltaX: number, deltaY: number): GridObject {
             y: tile.y + deltaY,
         };
     })
-    if (!isValidPosition(nextGo)) {
+    if (!isValidPosition(nextGo, grid)) {
         return go;
     }
     return nextGo;
 }
 
-function isValidPosition(go: GridObject): boolean {
-    const box = go.limits;
-    if (!box) {
+function isValidPosition(go: GridObject, grid: GridState): boolean {
+    const restriction = go.zoneRestriction;
+    if (!restriction) {
         return true;
     }
+    const zone = restriction === "P1" ? grid.p1Zone : grid.p2Zone;
 
-    return go.tiles.every(tile => withinBoundingBox(tile, box))
+    return go.tiles.every(tile => withinZone(tile, 
+}
+
+function withinZone(tile: Tile, zone: Tile[]): boolean {
+    return zone.includes(tile);
 }
 
 function withinBoundingBox(tile: Tile, box: BoundingBox): boolean {
@@ -89,3 +77,21 @@ function withinBoundingBox(tile: Tile, box: BoundingBox): boolean {
     return xConstraint && yConstraint;
 }
 
+export interface BoundingBox {
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number,
+}
+
+export function getBoundingBox(go: GridObject): BoundingBox {
+    const xVals = go.tiles.map(tile => tile.x);
+    const yVals = go.tiles.map(tile => tile.y);
+
+    return {
+        minX: Math.min(...xVals),
+        maxX: Math.max(...xVals),
+        minY: Math.min(...yVals),
+        maxY: Math.max(...yVals),
+    }
+}
