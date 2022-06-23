@@ -1,22 +1,19 @@
 import { PlayerId } from "../gameplay";
 
-const INPUT_DELAY = 3;
-const PAUSE_THRESHOLD = 12;
-const NUM_PLAYERS = 2;
 
 // Supports two players, one local and one remote
-export class RollbackGameEngine<G, I> {
+export class RollbackGameEngine<GS, I> {
   private localFrame: number;
   private confirmedFrame: number; // frame corresponding to the last confirmed game state
   private storedInputs: Map<number, Map<PlayerId, I>>;
-  private storedGameStates: Map<number, G>;
+  private storedGameStates: Map<number, GS>;
 
   constructor(
     private getLocalInputs: () => I,
-    private render: (gameState: G) => void,
-    private simulate: (gameState: G, inputs: Map<PlayerId, I>) => G,
+    private simulate: (gameState: GS, inputs: Map<PlayerId, I>) => GS,
+    private isTerminal: (gameState: GS) => boolean,
     private sendLocalInputs: (inputs: I, frame: number) => void,
-    initialGameState: G
+    initialGameState: GS
   ) {
     this.localFrame = 0;
     this.confirmedFrame = 0;
@@ -27,7 +24,12 @@ export class RollbackGameEngine<G, I> {
     }
   }
 
-  tick() {
+  tick(): boolean {
+    const localGameState = this.storedGameStates.get(this.localFrame);
+    if (localGameState && this.isTerminal(localGameState)) {
+      return true;
+    }
+
     // TODO: pausing should still allow replays, just not predicting new frames
     // otherwise the game just gets stuck forever
     if (this.localFrame - this.confirmedFrame > PAUSE_THRESHOLD) {
@@ -67,8 +69,7 @@ export class RollbackGameEngine<G, I> {
     }
 
     this.localFrame++;
-    const localGameState = this.storedGameStates.get(this.localFrame);
-    this.render(localGameState);
+    return false;
   }
 
   addRemoteInputs(frame: number, playerId: string, inputs: I) {
@@ -79,8 +80,7 @@ export class RollbackGameEngine<G, I> {
     console.log("registered remote inputs: ", frame, playerId, inputs);
   }
 
-  private queueLocalInputs() {
-    const inputs = this.getLocalInputs();
+  addLocalInputs(inputs: I) {
     const queuedFrame = this.localFrame + INPUT_DELAY;
     if (!this.storedInputs.has(queuedFrame)) {
       this.storedInputs.set(queuedFrame, new Map());
@@ -89,7 +89,5 @@ export class RollbackGameEngine<G, I> {
     this.sendLocalInputs(inputs, queuedFrame);
   }
 
-  private inputsConfirmed(inputs: Map<string, I>) {
-    return inputs && inputs.size === NUM_PLAYERS;
-  }
+
 }
