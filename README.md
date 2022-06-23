@@ -1,6 +1,8 @@
 
 
-# BattleComposersNx
+# Battle Composers
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#<your-project-url>)
 
 This project was generated using [Nx](https://nx.dev).
 
