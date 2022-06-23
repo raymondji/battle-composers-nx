@@ -1,3 +1,8 @@
+export interface GridState {
+    p1Box: BoundingBox,
+    p2Box: BoundingBox,
+}
+
 export interface GridObject {
     tiles: Tile[],
     limits?: BoundingBox,

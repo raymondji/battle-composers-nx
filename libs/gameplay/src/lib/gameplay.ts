@@ -6,6 +6,7 @@ export interface GameState {
   p1: PlayerState,
   p2: PlayerState,
   spells: SpellsState,
+  grid: GridState,
 }
 
 // Inputs recorded during a particular frame
