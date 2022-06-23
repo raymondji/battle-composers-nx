@@ -2,7 +2,7 @@
 
 # Battle Composers
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#<your-project-url>)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/raymondji/battle-composers-nx)
 
 This project was generated using [Nx](https://nx.dev).
 
