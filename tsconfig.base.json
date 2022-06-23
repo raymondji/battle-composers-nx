@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@battle-composers-nx/combat": ["libs/combat/src/index.ts"]
+      "@battle-composers-nx/gameplay": ["libs/gameplay/src/index.ts"],
+      "@battle-composers-nx/renderer": ["libs/renderer/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

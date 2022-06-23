@@ -3,7 +3,8 @@
   "version": 2,
   "projects": {
     "client": "apps/client",
-    "combat": "libs/combat",
+    "gameplay": "libs/gameplay",
+    "renderer": "libs/renderer",
     "server": "apps/server"
   }
 }
