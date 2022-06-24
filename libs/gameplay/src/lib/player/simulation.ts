@@ -1,6 +1,7 @@
 import { GameState, Inputs, PlayerInputs } from "../gameplay";
 import { GridObject, GridState, isColliding, moveDown, moveLeft, moveRight, moveUp } from "../grid";
-import { SpellState } from "../spells";
+import { SpellsState, SpellState } from "../spells/simulation";
+import { PlayerDefinition } from "./definitions";
 
 export interface PlayersState {
   p1: PlayerState,
@@ -18,40 +19,28 @@ export interface PlayerState {
   selectedSpellLevel: "easy" | "medium" | "hard",
   selectedSpell: string,
   definition: PlayerDefinition,
-}
-
-export interface PlayerDefinition {
-  id: PlayerId,
   connection: "local" | "remote",
-  initialGridObject: GridObject,
-  totalHitPoints: number,
 }
 
 export function simulatePlayerActions(state: GameState, inputs: Inputs) {
-  simulatePlayer(state.players.p1, inputs.p1)
-  simulatePlayer(state.players.p2, inputs.p2)
-
-  nextState.players.p1 = nextP1;
-  nextState.players.p2 = nextP2;
-  nextState.spells.active.push(...nextP1Spells)
-  nextState.spells.active.push(...nextP2Spells)
-  return nextState;
+  simulatePlayer(state.players.p1, state.grid, state.spells, inputs.p1)
+  simulatePlayer(state.players.p2, state.grid, state.spells, inputs.p2)
 }
 
 // Returns the next player state and any updated spells that were cast
-export function simulatePlayer(: PlayerState, grid: GridState, inputs: PlayerInputs): [PlayerState, SpellState[]] {
+export function simulatePlayer(player: PlayerState, grid: GridState, spells: SpellsState, inputs: PlayerInputs) {
   // Handle movement
   if (inputs.w) {
-    nextPlayerState.gridObject = moveUp(nextPlayerState.gridObject, grid);
+    moveUp(player.gridObject, grid);
   } else if (inputs.a) {
-    nextPlayerState.gridObject = moveLeft(nextPlayerState.gridObject);
+    moveLeft(player.gridObject, grid);
   } else if (inputs.s) {
-    nextPlayerState.gridObject = moveDown(nextPlayerState.gridObject);
+    moveDown(player.gridObject, grid);
   } else if (inputs.d) {
-    nextPlayerState.gridObject = moveRight(nextPlayerState.gridObject);
+    moveRight(player.gridObject, grid);
   }
 
-  return [nextPlayerState, []]
+  // Handle spell casts
 }
 
 export interface DefaultState {
@@ -73,3 +62,8 @@ export interface CastingState {
 }
 
 export type PlayerId = "P1" | "P2";
+
+export function takeDamage(player: PlayerState, amount: number) {
+  player.hitPoints -= amount;
+  player.invincibilityFrames = 8;
+}

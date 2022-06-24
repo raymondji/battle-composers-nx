@@ -1,5 +1,5 @@
 import { GameState } from "../gameplay";
-import { PlayerId } from "../player";
+import { PlayerId } from "../player/simulation";
 
 interface RollbackState<G, I> {
   localFrame: number;

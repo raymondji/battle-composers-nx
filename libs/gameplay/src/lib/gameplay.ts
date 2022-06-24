@@ -1,7 +1,7 @@
 import { GridState } from "./grid";
-import { PlayerId, PlayersState, simulatePlayerActions, simulatePlayers } from "./player";
+import { PlayerId, PlayersState, simulatePlayerActions } from "./player/simulation";
 import { RollbackGameEngine } from "./rollback";
-import { simulateSpellEffects, simulateSpells, SpellsState } from "./spells";
+import { simulateSpellEffects, SpellsState } from "./spells/simulation";
 
 export interface GameState {
   players: PlayersState,

@@ -1,4 +1,4 @@
-import { PlayerId } from "../player";
+import { PlayerId } from "../player/simulation";
 
 export interface GridState {
     p1Zone: Tile[];
@@ -27,20 +27,20 @@ export function isColliding(go1: GridObject, go2: GridObject): boolean {
     return false;
 }
 
-export function moveRight(go: GridObject, grid: GridState) {
-    move(go, grid, 1, 0);
+export function moveRight(go: GridObject, grid: GridState): GridObject {
+    return move(go, grid, 1, 0);
 }
 
-export function moveLeft(go: GridObject, grid: GridState) {
-    move(go, grid, -1, 0);
+export function moveLeft(go: GridObject, grid: GridState): GridObject {
+    return move(go, grid, -1, 0);
 }
 
-export function moveUp(go: GridObject, grid: GridState) {
-    move(go, grid, 0, -1);
+export function moveUp(go: GridObject, grid: GridState): GridObject {
+    return move(go, grid, 0, -1);
 }
 
-export function moveDown(go: GridObject, grid: GridState) {
-    move(go, grid, 0, 1);
+export function moveDown(go: GridObject, grid: GridState): GridObject {
+    return move(go, grid, 0, 1);
 }
 
 function move(go: GridObject, grid: GridState, deltaX: number, deltaY: number): GridObject {
@@ -64,7 +64,7 @@ function isValidPosition(go: GridObject, grid: GridState): boolean {
     }
     const zone = restriction === "P1" ? grid.p1Zone : grid.p2Zone;
 
-    return go.tiles.every(tile => withinZone(tile, 
+    return go.tiles.every(tile => withinZone(tile, zone))
 }
 
 function withinZone(tile: Tile, zone: Tile[]): boolean {
