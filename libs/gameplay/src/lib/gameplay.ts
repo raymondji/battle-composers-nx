@@ -44,7 +44,7 @@ export interface Game {
 
 export function createGame(
   localPlayer: PlayerId, remotePlayer: PlayerId,
-  characters: Map<PlayerId, Characte>,
+  characters: Map<PlayerId, Character>,
   getLocalInputs: (inputs: Inputs) => void): Game {
 }
 
