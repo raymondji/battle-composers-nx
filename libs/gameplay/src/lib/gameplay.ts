@@ -1,6 +1,11 @@
+import { Character } from './characters';
 import { GridState, initGridState } from './grid';
 import { PlayerId } from './player/definitions';
-import { PlayersState, simulatePlayerActions } from './player/simulation';
+import {
+  initPlayersState,
+  PlayersState,
+  simulatePlayerActions,
+} from './player/simulation';
 import { RollbackGameEngine } from './rollback';
 import {
   initSpellsState,
@@ -44,6 +49,15 @@ function simulate(
   return nextState;
 }
 
+function isGameOver(state: GameState): boolean {
+  return state.players.p1.hitPoints === 0 || state.players.p2.hitPoints === 0;
+}
+
+// Should only be called if the game is over
+function getWinner(state: GameState): PlayerId {
+  return state.players.p1.hitPoints === 0 ? 'P2' : 'P1';
+}
+
 export interface Game {
   tick(): GameState;
   isOver(): boolean;
@@ -56,12 +70,12 @@ export interface Game {
 export function createGame(
   localPlayer: PlayerId,
   remotePlayer: PlayerId,
-  { p1, p2 }: { p1: Character; p2: Character },
+  characters: { p1: Character; p2: Character },
   getLocalInputs: () => PlayerInputs,
   sendInputs: (inputs: PlayerInputs) => void
 ): Game {
   const initialState: GameState = {
-    players: initPlayersState(),
+    players: initPlayersState(characters),
     spells: initSpellsState(),
     grid: initGridState(6, 4),
   };
@@ -69,14 +83,10 @@ export function createGame(
   const game = new RollbackGameEngine(
     getLocalInputs,
     simulate,
-    isTerminal,
+    isGameOver,
     sendInputs,
     initialState
   );
 
   return game;
-}
-
-function initPlayersState(): PlayersState {
-  throw new Error('Function not implemented.');
 }

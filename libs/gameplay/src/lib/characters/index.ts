@@ -1,8 +1,7 @@
-import { GridObject } from "../grid";
+import { SpellDefinition, SpellDefinitionKeys } from '../spells/definitions';
 
-export interface Composer {
-    name: string; // unique
-    sprite: string;
-    spells: Spell[];
+export interface Character {
+  name: string;
+  sprite: string;
+  spells: SpellDefinitionKeys[];
 }
-

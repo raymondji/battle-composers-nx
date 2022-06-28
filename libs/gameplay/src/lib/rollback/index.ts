@@ -1,5 +1,4 @@
-import { PlayerId } from "../gameplay";
-
+import { PlayerId } from '../gameplay';
 
 // Supports two players, one local and one remote
 export class RollbackGameEngine<GS, I> {
@@ -33,7 +32,9 @@ export class RollbackGameEngine<GS, I> {
     // TODO: pausing should still allow replays, just not predicting new frames
     // otherwise the game just gets stuck forever
     if (this.localFrame - this.confirmedFrame > PAUSE_THRESHOLD) {
-      console.log(`Should pause, local frame: ${this.localFrame}, confirmed frame: ${this.confirmedFrame}`);
+      console.log(
+        `Should pause, local frame: ${this.localFrame}, confirmed frame: ${this.confirmedFrame}`
+      );
       // return
     }
     this.queueLocalInputs();
@@ -77,7 +78,7 @@ export class RollbackGameEngine<GS, I> {
       this.storedInputs.set(frame, new Map());
     }
     this.storedInputs.get(frame).set(playerId, inputs);
-    console.log("registered remote inputs: ", frame, playerId, inputs);
+    console.log('registered remote inputs: ', frame, playerId, inputs);
   }
 
   addLocalInputs(inputs: I) {
@@ -88,6 +89,4 @@ export class RollbackGameEngine<GS, I> {
     this.storedInputs.get(queuedFrame).set(this.localPlayerId, inputs);
     this.sendLocalInputs(inputs, queuedFrame);
   }
-
-
 }

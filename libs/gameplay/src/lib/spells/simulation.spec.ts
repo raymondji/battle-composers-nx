@@ -1,6 +1,8 @@
 import { simulateSpellEffects } from './simulation';
 import { GameState } from '../gameplay';
 
+test('initPlayersState', () => {});
+
 describe('simulateSpellEffects', () => {
   test('removes done spells', () => {});
 

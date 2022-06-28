@@ -1,3 +1,4 @@
+import { Character } from '../characters';
 import { GameState, Inputs, PlayerInputs } from '../gameplay';
 import {
   GridObject,
@@ -10,16 +11,27 @@ import {
 import { SpellDefinitionKeys, spellDefinitions } from '../spells/definitions';
 import { Direction, getCastSequence } from '../spells/sequence';
 import { initSpellState, SpellsState, SpellState } from '../spells/simulation';
-import { PlayerDefinition } from './definitions';
+import { Player1, Player2, PlayerDefinition } from './definitions';
 
 export interface PlayersState {
   p1: PlayerState;
   p2: PlayerState;
 }
 
+export function initPlayersState(characters: {
+  p1: Character;
+  p2: Character;
+}): PlayersState {
+  return {
+    p1: initPlayerState(Player1, characters.p1),
+    p2: initPlayerState(Player2, characters.p2),
+  };
+}
+
 export interface PlayerState {
   status: PlayerStatus;
-  statusEndFrame: number; // frame on which the status should end
+  // frame on which the status should end. If zero, this lasts perpetually
+  statusEndFrame: number | 'indefinite';
   castSequenceIndex: number;
   castSequence: Direction[];
   hitPoints: number;
@@ -27,7 +39,25 @@ export interface PlayerState {
   selectedSpellLevel: 'easy' | 'medium' | 'hard';
   selectedSpell: SpellDefinitionKeys;
   definition: PlayerDefinition;
-  connection: 'local' | 'remote';
+  character: Character;
+}
+
+function initPlayerState(
+  definition: PlayerDefinition,
+  character: Character
+): PlayerState {
+  return {
+    status: 'default',
+    statusEndFrame: 'indefinite',
+    castSequenceIndex: 0,
+    castSequence: [],
+    hitPoints: 100,
+    gridObject: definition.initialGridObject,
+    selectedSpellLevel: 'easy',
+    selectedSpell: character.spells[0],
+    definition,
+    character,
+  };
 }
 
 export type PlayerStatus = 'default' | 'casting' | 'castSuccess' | 'injured';
