@@ -145,12 +145,15 @@ export function handleStatusEnd(
   frame: number,
   statusDuration: number
 ) {
-  if (frame - player.status.startFrame > statusDuration) {
-    player.status = {
-      name: 'default',
-      startFrame: frame,
-    };
+  const elapsed = frame - player.status.startFrame;
+  if (elapsed < statusDuration) {
+    return;
   }
+
+  player.status = {
+    name: 'default',
+    startFrame: frame,
+  };
 }
 
 export function handleMoveInput(
