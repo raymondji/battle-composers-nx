@@ -7,6 +7,11 @@ import { SpellDefinition } from "./definitions";
 export interface SpellsState {
     active: SpellState[],
 }
+export function initSpellsState(): SpellsState {
+    return {
+        active: [],
+    }
+}
 
 export interface SpellState {
     frame: number, // which frame the spell is on

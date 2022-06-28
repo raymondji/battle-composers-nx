@@ -66,4 +66,7 @@ export type PlayerId = "P1" | "P2";
 export function takeDamage(player: PlayerState, amount: number) {
   player.hitPoints -= amount;
   player.invincibilityFrames = 8;
+  player.state = {
+    name: "injured",
+  }
 }

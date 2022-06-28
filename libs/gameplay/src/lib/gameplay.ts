@@ -1,7 +1,7 @@
 import { GridState } from "./grid";
 import { PlayerId, PlayersState, simulatePlayerActions } from "./player/simulation";
 import { RollbackGameEngine } from "./rollback";
-import { simulateSpellEffects, SpellsState } from "./spells/simulation";
+import { initSpellsState, initSpellState, simulateSpellEffects, SpellsState } from "./spells/simulation";
 
 export interface GameState {
   players: PlayersState,
@@ -46,5 +46,13 @@ export function createGame(
   localPlayer: PlayerId, remotePlayer: PlayerId,
   characters: Map<PlayerId, Character>,
   getLocalInputs: (inputs: Inputs) => void): Game {
+  const initialState: GameState = {
+    players: initPlayersState(),
+    spells: initSpellsState(),
+    grid: initGridState(),
+  }
+
+  const game = new RollbackGameEngine(getLocalInputs, simulate, isTerminal, sendLocalInputs, initalState);
+  return game;
 }
 
