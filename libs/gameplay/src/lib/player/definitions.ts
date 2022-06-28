@@ -13,6 +13,7 @@ export const Player1: PlayerDefinition = {
   facing: 'right',
   initialGridObject: {
     tiles: [{ x: 0, y: 0 }],
+    zoneRestriction: 'P1',
   },
 };
 
@@ -21,6 +22,7 @@ export const Player2: PlayerDefinition = {
   facing: 'left',
   initialGridObject: {
     tiles: [{ x: 5, y: 3 }],
+    zoneRestriction: 'P2',
   },
 };
 

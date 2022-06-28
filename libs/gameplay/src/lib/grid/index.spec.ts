@@ -1,4 +1,11 @@
-import { GridObject, initGridState, isColliding, moveRight } from '.';
+import {
+  GridObject,
+  initGridState,
+  isColliding,
+  moveDown,
+  moveRight,
+  moveUp,
+} from '.';
 
 test('initGridState', () => {
   const got = initGridState(4, 2);
@@ -64,7 +71,8 @@ test('moveRight works without movement restriction', () => {
     ],
   };
   const grid = initGridState(4, 2);
-  moveRight(go, grid);
+  const got = moveRight(go, grid);
+  expect(got).toEqual(true);
   expect(go.tiles).toEqual(
     expect.arrayContaining([
       { x: 1, y: 0 },
@@ -82,12 +90,22 @@ test('moveRight works with movement restriction', () => {
     zoneRestriction: 'P1',
   };
   const grid = initGridState(4, 2);
-  console.log('grid is ', grid);
-  moveRight(go, grid);
+
+  const got = moveRight(go, grid);
+  expect(got).toEqual(false);
   expect(go.tiles).toEqual(
     expect.arrayContaining([
       { x: 0, y: 0 },
       { x: 1, y: 0 },
+    ])
+  );
+
+  const got2 = moveDown(go, grid);
+  expect(got2).toEqual(true);
+  expect(go.tiles).toEqual(
+    expect.arrayContaining([
+      { x: 0, y: 1 },
+      { x: 1, y: 1 },
     ])
   );
 });

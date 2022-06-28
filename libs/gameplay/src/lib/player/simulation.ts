@@ -30,8 +30,6 @@ export function initPlayersState(characters: {
 
 export interface PlayerState {
   status: PlayerStatus;
-  // frame on which the status should end. If zero, this lasts perpetually
-  statusEndFrame: number | 'indefinite';
   castSequenceIndex: number;
   castSequence: Direction[];
   hitPoints: number;
@@ -42,13 +40,15 @@ export interface PlayerState {
   character: Character;
 }
 
-function initPlayerState(
+export function initPlayerState(
   definition: PlayerDefinition,
   character: Character
 ): PlayerState {
   return {
-    status: 'default',
-    statusEndFrame: 'indefinite',
+    status: {
+      name: 'default',
+      startFrame: 0,
+    },
     castSequenceIndex: 0,
     castSequence: [],
     hitPoints: 100,
@@ -60,7 +60,10 @@ function initPlayerState(
   };
 }
 
-export type PlayerStatus = 'default' | 'casting' | 'castSuccess' | 'injured';
+export interface PlayerStatus {
+  name: 'default' | 'casting' | 'castSuccess' | 'injured';
+  startFrame: number;
+}
 
 export function simulatePlayerActions(
   state: GameState,
@@ -79,18 +82,20 @@ export function simulatePlayer(
   inputs: PlayerInputs,
   frame: number
 ) {
-  switch (player.status) {
+  // TODO: this setup is a bit weird, if we change status in one of the middle
+  // steps it continues to run through the original status' remaining steps
+  switch (player.status.name) {
     case 'default':
       handleMoveInput(player, inputs, grid);
       handleStartCastInput(player, inputs, frame);
       return;
     case 'castSuccess':
       handleMoveInput(player, inputs, grid);
-      handleStatusEnd(player, frame);
+      handleStatusEnd(player, frame, 10);
       return;
     case 'injured':
       handleMoveInput(player, inputs, grid);
-      handleStatusEnd(player, frame);
+      handleStatusEnd(player, frame, 10);
       return;
     case 'casting':
       handleMoveInput(player, inputs, grid);
@@ -98,7 +103,7 @@ export function simulatePlayer(
       handleCastSuccess(player, spells, frame);
       return;
     default:
-      exhaustiveCheck(player.status);
+      exhaustiveCheck(player.status.name);
   }
 }
 
@@ -124,18 +129,27 @@ export interface CastingState {
 }
 
 export function takeDamage(player: PlayerState, amount: number, frame: number) {
-  if (player.status === 'injured') {
+  if (player.status.name === 'injured') {
     return; // invulnerable while the status lasts
   }
 
   player.hitPoints -= amount;
-  player.status = 'injured';
-  player.statusEndFrame = frame + 10;
+  player.status = {
+    name: 'injured',
+    startFrame: frame,
+  };
 }
 
-export function handleStatusEnd(player: PlayerState, frame: number) {
-  if (player.statusEndFrame === frame) {
-    player.status = 'default';
+export function handleStatusEnd(
+  player: PlayerState,
+  frame: number,
+  statusDuration: number
+) {
+  if (frame - player.status.startFrame > statusDuration) {
+    player.status = {
+      name: 'default',
+      startFrame: frame,
+    };
   }
 }
 
@@ -165,7 +179,10 @@ export function handleStartCastInput(
   }
 
   const spellDef = spellDefinitions[player.selectedSpell];
-  player.status = 'casting';
+  player.status = {
+    name: 'casting',
+    startFrame: frame,
+  };
   player.castSequenceIndex = 0;
   player.castSequence = getCastSequence(spellDef.notes, frame);
 }
@@ -174,20 +191,20 @@ export function handleCastDirectionInput(
   player: PlayerState,
   inputs: PlayerInputs
 ) {
-  if (inputs.w && player.castSequence[player.castSequenceIndex] === 'Up') {
+  if (inputs.up && player.castSequence[player.castSequenceIndex] === 'Up') {
     player.castSequenceIndex++;
   } else if (
-    inputs.s &&
+    inputs.down &&
     player.castSequence[player.castSequenceIndex] === 'Down'
   ) {
     player.castSequenceIndex++;
   } else if (
-    inputs.a &&
+    inputs.left &&
     player.castSequence[player.castSequenceIndex] === 'Left'
   ) {
     player.castSequenceIndex++;
   } else if (
-    inputs.d &&
+    inputs.right &&
     player.castSequence[player.castSequenceIndex] === 'Right'
   ) {
     player.castSequenceIndex++;
@@ -202,8 +219,10 @@ export function handleCastSuccess(
   if (player.castSequenceIndex < player.castSequence.length) {
     return;
   }
-  player.status = 'castSuccess';
-  player.statusEndFrame = frame + 10;
+  player.status = {
+    name: 'castSuccess',
+    startFrame: frame,
+  };
   spells.active.push(initSpellState(player.selectedSpell, player));
 }
 

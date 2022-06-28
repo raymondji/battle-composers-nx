@@ -22,15 +22,15 @@ export interface GameState {
 }
 
 export interface PlayerInputs {
-  w: boolean;
-  a: boolean;
-  s: boolean;
-  d: boolean;
-  up: boolean;
-  down: boolean;
-  left: boolean;
-  right: boolean;
-  space: boolean;
+  w?: boolean;
+  a?: boolean;
+  s?: boolean;
+  d?: boolean;
+  up?: boolean;
+  down?: boolean;
+  left?: boolean;
+  right?: boolean;
+  space?: boolean;
 }
 
 export interface Inputs {

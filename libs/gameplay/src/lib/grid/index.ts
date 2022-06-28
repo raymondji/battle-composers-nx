@@ -67,28 +67,29 @@ export function isColliding(go1: GridObject, go2: GridObject): boolean {
   return false;
 }
 
-export function moveRight(go: GridObject, grid: GridState): void {
-  move(go, grid, 1, 0);
+export function moveRight(go: GridObject, grid: GridState): boolean {
+  return move(go, grid, 1, 0);
 }
 
-export function moveLeft(go: GridObject, grid: GridState): void {
-  move(go, grid, -1, 0);
+export function moveLeft(go: GridObject, grid: GridState): boolean {
+  return move(go, grid, -1, 0);
 }
 
-export function moveUp(go: GridObject, grid: GridState): void {
-  move(go, grid, 0, -1);
+export function moveUp(go: GridObject, grid: GridState): boolean {
+  return move(go, grid, 0, -1);
 }
 
-export function moveDown(go: GridObject, grid: GridState): void {
-  move(go, grid, 0, 1);
+export function moveDown(go: GridObject, grid: GridState): boolean {
+  return move(go, grid, 0, 1);
 }
 
+// Returns whether the move succeeded
 function move(
   go: GridObject,
   grid: GridState,
   deltaX: number,
   deltaY: number
-): void {
+): boolean {
   const updatedTiles = go.tiles.map((tile) => {
     return {
       x: tile.x + deltaX,
@@ -100,10 +101,11 @@ function move(
     go.zoneRestriction &&
     !isWithinZone(updatedTiles, go.zoneRestriction, grid)
   ) {
-    return;
+    return false;
   }
 
   go.tiles = updatedTiles;
+  return true;
 }
 
 function isWithinZone(
@@ -112,7 +114,9 @@ function isWithinZone(
   grid: GridState
 ): boolean {
   const zone = zoneRestriction === 'P1' ? grid.p1Zone : grid.p2Zone;
-  return tiles.every((tile) => zone.includes(tile));
+  return tiles.every((tile) =>
+    zone.some((ztile) => ztile.x === tile.x && ztile.y === tile.y)
+  );
 }
 
 function withinBoundingBox(tile: Tile, box: BoundingBox): boolean {

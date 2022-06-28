@@ -5,3 +5,9 @@ export interface Character {
   sprite: string;
   spells: SpellDefinitionKeys[];
 }
+
+export const beethoven: Character = {
+  name: 'Beethoven',
+  sprite: '',
+  spells: ['furElise'],
+};
