@@ -82,8 +82,9 @@ export function simulatePlayer(
   inputs: PlayerInputs,
   frame: number
 ) {
-  // TODO: this setup is a bit weird, if we change status in one of the middle
+  // TODO: this setup seems a bit error prone, if we change status in one of the middle
   // steps it continues to run through the original status' remaining steps
+  // For now: follow the convention that only the last step can change the status
   switch (player.status.name) {
     case 'default':
       handleMoveInput(player, inputs, grid);
