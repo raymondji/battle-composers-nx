@@ -1,4 +1,4 @@
-import { PlayerId } from '../player/simulation';
+import { PlayerId } from '../player/definitions';
 
 export interface GridState {
   p1Zone: Tile[];
