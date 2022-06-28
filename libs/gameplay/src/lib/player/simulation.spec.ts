@@ -7,10 +7,23 @@ import {
   handleCastSuccess,
   handleMoveInput,
   handleStartCastInput,
+  handleStatusEnd,
   initPlayerState,
   simulatePlayer,
   takeDamage,
 } from './simulation';
+
+test('handleStatusEnd', () => {
+  const p = initPlayerState(Player1, beethoven);
+  p.status = {
+    name: 'castSuccess',
+    startFrame: 10,
+  };
+  handleStatusEnd(p, 19, 10);
+  expect(p.status.name).toEqual('castSuccess');
+  handleStatusEnd(p, 20, 10);
+  expect(p.status.name).toEqual('default');
+});
 
 test('handleMoveInput', () => {
   const p = initPlayerState(Player1, beethoven);
