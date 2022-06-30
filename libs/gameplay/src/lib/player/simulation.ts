@@ -44,20 +44,22 @@ export function initPlayerState(
   definition: PlayerDefinition,
   character: Character
 ): PlayerState {
-  return {
-    status: {
-      name: 'default',
-      startFrame: 0,
-    },
-    castSequenceIndex: 0,
-    castSequence: [],
-    hitPoints: 100,
-    gridObject: definition.initialGridObject,
-    selectedSpellLevel: 'easy',
-    selectedSpell: character.spells[0],
-    definition,
-    character,
-  };
+  return JSON.parse(
+    JSON.stringify({
+      status: {
+        name: 'default',
+        startFrame: 0,
+      },
+      castSequenceIndex: 0,
+      castSequence: [],
+      hitPoints: 100,
+      gridObject: definition.initialGridObject,
+      selectedSpellLevel: 'easy',
+      selectedSpell: character.spells[0],
+      definition,
+      character,
+    })
+  );
 }
 
 export interface PlayerStatus {
@@ -85,6 +87,7 @@ export function simulatePlayer(
   // TODO: this setup seems a bit error prone, if we change status in one of the middle
   // steps it continues to run through the original status' remaining steps
   // For now: follow the convention that only the last step can change the status
+  // Maybe each status should just have one action besides moving
   switch (player.status.name) {
     case 'default':
       handleMoveInput(player, inputs, grid);

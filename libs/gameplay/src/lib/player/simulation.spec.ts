@@ -13,6 +13,15 @@ import {
   takeDamage,
 } from './simulation';
 
+test('handleSimulatePlayer', () => {
+  const p = initPlayerState(Player1, beethoven);
+  const g = initGridState(4, 2);
+  const ss = initSpellsState();
+  simulatePlayer(p, g, ss, { d: true, space: true }, 10);
+  expect(p.status.name).toEqual('casting');
+  expect(p.gridObject.tiles[0]).toEqual({ x: 1, y: 0 });
+});
+
 test('handleStatusEnd', () => {
   const p = initPlayerState(Player1, beethoven);
   p.status = {
