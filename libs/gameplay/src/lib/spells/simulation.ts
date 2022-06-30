@@ -1,7 +1,7 @@
 import e = require('express');
 import { GameState } from '../gameplay';
 import { GridObject, GridState, isColliding } from '../grid';
-import { getOpponent, PlayerId } from '../player/definitions';
+import { getOpponent, PlayerDefinition, PlayerId } from '../player/definitions';
 import { PlayersState, PlayerState } from '../player/simulation';
 import { SpellDefinitionKeys, spellDefinitions } from './definitions';
 
@@ -16,7 +16,8 @@ export function initSpellsState(): SpellsState {
 }
 
 export interface SpellState {
-  frame: number; // which frame the spell is on
+  startFrame: number;
+  caster: PlayerDefinition;
   gridObject: GridObject;
   definitionKey: SpellDefinitionKeys;
   affectedPlayers: PlayerId[];
@@ -24,14 +25,16 @@ export interface SpellState {
 
 export function initSpellState(
   definitionKey: SpellDefinitionKeys,
-  caster: PlayerState
+  caster: PlayerState,
+  frame: number
 ): SpellState {
   const def = spellDefinitions[definitionKey];
 
   return {
-    frame: 0,
+    startFrame: frame,
     gridObject: def.getInitialGridObject(caster),
     definitionKey,
+    caster: caster.definition,
     affectedPlayers: def.getAffectedPlayers(
       caster.definition.id,
       getOpponent(caster.definition.id)
@@ -41,7 +44,9 @@ export function initSpellState(
 
 // Mutates the given GameState by simulating one frame of active spell effects
 export function simulateSpellEffects(state: GameState, frame: number): void {
-  state.spells.active = state.spells.active.filter((spell) => !isDone(spell));
+  state.spells.active = state.spells.active.filter(
+    (spell) => !isDone(spell, frame)
+  );
   for (let spell of state.spells.active) {
     simulateSpell(spell, state.players, state.grid, frame);
   }
@@ -56,10 +61,8 @@ function simulateSpell(
 ): void {
   const def = spellDefinitions[spell.definitionKey];
 
-  spell.frame++;
-
   // Handle movements
-  def.updateGridObject(spell.gridObject, grid, spell.frame);
+  def.updateGridObject(spell.gridObject, grid, spell.caster, frame);
 
   // Handle effects on players
   if (
@@ -84,7 +87,7 @@ function simulateSpell(
   }
 }
 
-function isDone(state: SpellState): boolean {
+function isDone(state: SpellState, frame: number): boolean {
   const def = spellDefinitions[state.definitionKey];
-  return state.frame >= def.durationFrames;
+  return frame - state.startFrame >= def.durationFrames;
 }

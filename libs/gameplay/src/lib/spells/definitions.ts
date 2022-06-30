@@ -1,5 +1,5 @@
-import { GridObject, GridState, moveRight, Tile } from '../grid';
-import { getOpponent, PlayerId } from '../player/definitions';
+import { GridObject, GridState, moveLeft, moveRight, Tile } from '../grid';
+import { getOpponent, PlayerDefinition, PlayerId } from '../player/definitions';
 import { PlayerState, takeDamage } from '../player/simulation';
 
 export interface SpellDefinition {
@@ -9,6 +9,7 @@ export interface SpellDefinition {
   updateGridObject: (
     gridObject: GridObject,
     grid: GridState,
+    caster: PlayerDefinition,
     frame: number
   ) => void;
   getInitialGridObject: (player: PlayerState) => GridObject;
@@ -35,10 +36,17 @@ const furElise: SpellDefinition = {
   updateGridObject: (
     gridObject: GridObject,
     grid: GridState,
+    caster: PlayerDefinition,
     frame: number
   ) => {
-    if (frame % 5 === 0) {
+    if (frame % 5 !== 0) {
+      return;
+    }
+    // TODO: account for which player it is
+    if (caster.facing === 'right') {
       moveRight(gridObject, grid);
+    } else {
+      moveLeft(gridObject, grid);
     }
   },
   applyToPlayer: (player: PlayerState, frame: number) => {

@@ -67,26 +67,31 @@ export interface Game {
   registerLocalInputs(inputs: Inputs): void;
 }
 
-export function createGame(
-  localPlayer: PlayerId,
-  remotePlayer: PlayerId,
-  characters: { p1: Character; p2: Character },
-  getLocalInputs: () => PlayerInputs,
-  sendInputs: (inputs: PlayerInputs) => void
-): Game {
-  const initialState: GameState = {
+export function initGameState(characters: {
+  p1: Character;
+  p2: Character;
+}): GameState {
+  return {
     players: initPlayersState(characters),
     spells: initSpellsState(),
     grid: initGridState(6, 4),
   };
-
-  const game = new RollbackGameEngine(
-    getLocalInputs,
-    simulate,
-    isGameOver,
-    sendInputs,
-    initialState
-  );
-
-  return game;
 }
+
+// export function createGame(
+//   localPlayer: PlayerId,
+//   remotePlayer: PlayerId,
+//   characters: { p1: Character; p2: Character },
+//   getLocalInputs: () => PlayerInputs,
+//   sendInputs: (inputs: PlayerInputs) => void
+// ): Game {
+//   const game = new RollbackGameEngine(
+//     getLocalInputs,
+//     simulate,
+//     isGameOver,
+//     sendInputs,
+//     initGameState(characters)
+//   );
+
+//   return game;
+// }

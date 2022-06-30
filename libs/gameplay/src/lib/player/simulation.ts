@@ -230,7 +230,7 @@ export function handleCastSuccess(
     name: 'castSuccess',
     startFrame: frame,
   };
-  spells.active.push(initSpellState(player.selectedSpell, player));
+  spells.active.push(initSpellState(player.selectedSpell, player, frame));
 }
 
 function exhaustiveCheck(param: never): never {
