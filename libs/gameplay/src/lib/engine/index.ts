@@ -17,13 +17,13 @@ type PlayerConnections = {
   remote: PlayerId;
 };
 
+// Input i and gamestate i-1 generate gamestate i
+// TODO: make sure this holds true and I'm not off by one
 export type EngineState<G, I> = {
   localFrame: number;
   localGameState: G;
   confirmedFrame: number; // frame corresponding to the confirmedGameState
   confirmedGameState: G; // the last game state we processed with inputs from all players
-  // Input i and gamestate i-1 generate gamestate i
-  // TODO: make sure this holds true and I'm not off by one
   storedInputs: Map<number, PartialInputs<I>>;
   isWaiting: boolean;
 };
