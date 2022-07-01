@@ -1,5 +1,6 @@
 import { Character } from '../characters';
-import { GameState, Inputs, PlayerInputs } from '../gameplay';
+import { Inputs } from '../engine';
+import { GameState, PlayerInputs } from '../gameplay';
 import {
   GridObject,
   GridState,
@@ -69,7 +70,7 @@ export interface PlayerStatus {
 
 export function simulatePlayerActions(
   state: GameState,
-  inputs: Inputs,
+  inputs: Inputs<PlayerInputs>,
   frame: number
 ) {
   simulatePlayer(state.players.p1, state.grid, state.spells, inputs.p1, frame);

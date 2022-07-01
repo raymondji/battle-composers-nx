@@ -1,10 +1,11 @@
+import { PlayerId } from '../engine';
 import { GridObject } from '../grid';
 
-export type PlayerId = 'P1' | 'P2';
+export type PlayerFacingDirection = 'left' | 'right';
 
 export interface PlayerDefinition {
   id: PlayerId;
-  facing: 'left' | 'right';
+  facing: PlayerFacingDirection;
   initialGridObject: GridObject;
 }
 

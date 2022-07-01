@@ -1,12 +1,15 @@
 import { Character } from './characters';
+import {
+  createMultiplayerRollbackGameEngine,
+  Inputs,
+  PlayerId,
+} from './engine';
 import { GridState, initGridState } from './grid';
-import { PlayerId } from './player/definitions';
 import {
   initPlayersState,
   PlayersState,
   simulatePlayerActions,
 } from './player/simulation';
-import { RollbackGameEngine } from './rollback';
 import {
   initSpellsState,
   initSpellState,
@@ -33,14 +36,9 @@ export interface PlayerInputs {
   space?: boolean;
 }
 
-export interface Inputs {
-  p1: PlayerInputs;
-  p2: PlayerInputs;
-}
-
 function simulate(
   prevState: GameState,
-  inputs: Inputs,
+  inputs: Inputs<PlayerInputs>,
   frame: number
 ): GameState {
   const nextState: GameState = JSON.parse(JSON.stringify(prevState));
@@ -60,11 +58,11 @@ function getWinner(state: GameState): PlayerId {
 
 export interface Game {
   tick(): GameState;
-  isOver(): boolean;
-  isWaiting(): boolean;
-  getWinner(): PlayerId;
-  registerRemoteInputs(inputs: Inputs): void;
-  registerLocalInputs(inputs: Inputs): void;
+  isOver(gs: GameState): boolean;
+  isWaiting(gs: GameState): boolean;
+  getWinner(gs: GameState): PlayerId;
+  registerRemoteInputs(inputs: PlayerInputs, frame: number): void;
+  registerLocalInputs(inputs: PlayerInputs): number;
 }
 
 export function initGameState(characters: {
@@ -78,20 +76,23 @@ export function initGameState(characters: {
   };
 }
 
-// export function createGame(
-//   localPlayer: PlayerId,
-//   remotePlayer: PlayerId,
-//   characters: { p1: Character; p2: Character },
-//   getLocalInputs: () => PlayerInputs,
-//   sendInputs: (inputs: PlayerInputs) => void
-// ): Game {
-//   const game = new RollbackGameEngine(
-//     getLocalInputs,
-//     simulate,
-//     isGameOver,
-//     sendInputs,
-//     initGameState(characters)
-//   );
+export function createGame(
+  players: { local: PlayerId; remote: PlayerId },
+  characters: { p1: Character; p2: Character }
+): Game {
+  const engine = createMultiplayerRollbackGameEngine(
+    initGameState(characters),
+    players,
+    {},
+    simulate
+  );
 
-//   return game;
-// }
+  return {
+    tick: engine.tick,
+    isWaiting: engine.isWaiting,
+    isOver: isGameOver,
+    getWinner,
+    registerLocalInputs: engine.registerLocalInputs,
+    registerRemoteInputs: engine.registerRemoteInputs,
+  };
+}

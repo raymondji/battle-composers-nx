@@ -1,7 +1,8 @@
 import e = require('express');
+import { PlayerId } from '../engine';
 import { GameState } from '../gameplay';
 import { GridObject, GridState, isColliding } from '../grid';
-import { getOpponent, PlayerDefinition, PlayerId } from '../player/definitions';
+import { getOpponent, PlayerDefinition } from '../player/definitions';
 import { PlayersState, PlayerState } from '../player/simulation';
 import { SpellDefinitionKeys, spellDefinitions } from './definitions';
 
@@ -62,7 +63,7 @@ function simulateSpell(
   const def = spellDefinitions[spell.definitionKey];
 
   // Handle movements
-  def.updateGridObject(spell.gridObject, grid, spell.caster, frame);
+  def.updateGridObject(spell.gridObject, grid, spell.caster.facing, frame);
 
   // Handle effects on players
   if (
