@@ -6,6 +6,7 @@ export type MultiplayerRollbackGameEngine<G, I> = {
   isWaiting(): boolean;
   registerRemoteInputs(playerInputs: I, frame: number): void;
   // Returns the frame number the inputs were registered on
+  // Returns -1 if the inputs were rejected
   registerLocalInputs(playerInputs: I): number;
 };
 
@@ -21,6 +22,8 @@ export type EngineState<G, I> = {
   localGameState: G;
   confirmedFrame: number; // frame corresponding to the confirmedGameState
   confirmedGameState: G; // the last game state we processed with inputs from all players
+  // Input i and gamestate i-1 generate gamestate i
+  // TODO: make sure this holds true and I'm not off by one
   storedInputs: Map<number, PartialInputs<I>>;
   isWaiting: boolean;
 };
@@ -39,13 +42,25 @@ export type SimulationFunc<G, I> = (
   frame: number
 ) => G;
 
-export function initEngineState<G, I>(initialGameState: G): EngineState<G, I> {
+export function initEngineState<G, I>(
+  initialGameState: G,
+  params: EngineParams<G, I>
+): EngineState<G, I> {
+  const storedInputs = new Map<number, PartialInputs<I>>();
+  for (let i = 0; i < params.inputDelay; ++i) {
+    if (params.players.local === 'P1') {
+      storedInputs.set(i, { p1: params.emptyPlayerInputs });
+    } else {
+      storedInputs.set(i, { p2: params.emptyPlayerInputs });
+    }
+  }
+
   return {
     localFrame: 0,
     localGameState: initialGameState,
     confirmedFrame: 0,
     confirmedGameState: initialGameState,
-    storedInputs: new Map(),
+    storedInputs,
     isWaiting: false,
   };
 }
@@ -58,7 +73,6 @@ export function createMultiplayerRollbackGameEngine<G, I>(
   pauseThreshold = DEFAULT_PAUSE_THRESHOLD,
   inputDelay = DEFAULT_INPUT_DELAY
 ): MultiplayerRollbackGameEngine<G, I> {
-  let state: EngineState<G, I> = initEngineState(initialGameState);
   const params: EngineParams<G, I> = {
     players,
     simulate,
@@ -66,6 +80,7 @@ export function createMultiplayerRollbackGameEngine<G, I>(
     inputDelay,
     pauseThreshold,
   };
+  let state: EngineState<G, I> = initEngineState(initialGameState, params);
 
   return {
     tick: () => {
@@ -122,8 +137,14 @@ export function registerLocalInputs<G, I>(
   }
   const inputs = state.storedInputs.get(frame)!;
   if (params.players.local === 'P1') {
+    if (inputs.p1 !== undefined) {
+      return -1;
+    }
     inputs.p1 = playerInputs;
   } else {
+    if (inputs.p2 !== undefined) {
+      return -1;
+    }
     inputs.p2 = playerInputs;
   }
   return frame;
@@ -142,7 +163,7 @@ export function tick<G, I>(
   // Rollback and resimulate frames
   for (let f = state.confirmedFrame; f < state.localFrame; f++) {
     const inputs = state.storedInputs.get(f) ?? {};
-    if (inputsConfirmed(inputs, params.players.remote)) {
+    if (inputsConfirmed(inputs)) {
       state.confirmedFrame = f;
       state.confirmedGameState = gs;
     }
@@ -179,10 +200,9 @@ export function tick<G, I>(
   }
 }
 
-function inputsConfirmed<I>(inputs: PartialInputs<I>, remotePlayer: PlayerId) {
-  return remotePlayer === 'P1'
-    ? inputs.p1 !== undefined
-    : inputs.p2 !== undefined;
+// Should check inputs for both players, other player might be running ahead
+function inputsConfirmed<I>(inputs: PartialInputs<I>) {
+  return inputs.p1 !== undefined && inputs.p2 !== undefined;
 }
 
 function fillInPartialInputs<I>(
