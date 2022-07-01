@@ -17,7 +17,7 @@ type PlayerConnections = {
   remote: PlayerId;
 };
 
-// Input i and gamestate i-1 generate gamestate i
+// Input i and gamestate i generate gamestate i+1
 // TODO: make sure this holds true and I'm not off by one
 export type EngineState<G, I> = {
   localFrame: number;
@@ -48,11 +48,10 @@ export function initEngineState<G, I>(
 ): EngineState<G, I> {
   const storedInputs = new Map<number, PartialInputs<I>>();
   for (let i = 0; i < params.inputDelay; ++i) {
-    if (params.players.local === 'P1') {
-      storedInputs.set(i, { p1: params.emptyPlayerInputs });
-    } else {
-      storedInputs.set(i, { p2: params.emptyPlayerInputs });
-    }
+    storedInputs.set(i, {
+      p1: params.emptyPlayerInputs,
+      p2: params.emptyPlayerInputs,
+    });
   }
 
   return {
@@ -163,15 +162,16 @@ export function tick<G, I>(
   // Rollback and resimulate frames
   for (let f = state.confirmedFrame; f < state.localFrame; f++) {
     const inputs = state.storedInputs.get(f) ?? {};
-    if (inputsConfirmed(inputs)) {
-      state.confirmedFrame = f;
-      state.confirmedGameState = gs;
-    }
+    // Gs_f+1 = gs_f + inputs_f
     gs = params.simulate(
       gs,
       fillInPartialInputs(inputs, params.emptyPlayerInputs),
       f
     );
+    if (inputsConfirmed(inputs)) {
+      state.confirmedFrame = f + 1;
+      state.confirmedGameState = gs;
+    }
   }
 
   // Check if we need to wait for remote player to catch up

@@ -30,10 +30,10 @@ describe('tick', () => {
     tick(state, engineParams);
     expect(state.localGameState).toEqual(' (p1:,p2:) (p1:,p2:)');
     expect(state.localFrame).toBe(2);
-    expect(state.confirmedFrame).toBe(0);
+    expect(state.confirmedFrame).toBe(2);
     registerRemoteInputs(state, engineParams, 'abc', 1);
     tick(state, engineParams);
-    expect(state.confirmedFrame).toBe(1);
+    expect(state.confirmedFrame).toBe(2);
     expect(state.confirmedGameState).toEqual(' (p1:,p2:) (p1:,p2:abc)');
     expect(state.localFrame).toBe(3);
     expect(state.localGameState).toEqual(' (p1:,p2:) (p1:,p2:abc) (p1:,p2:)');
