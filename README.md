@@ -1,5 +1,7 @@
 # Battle Composers
 
+Update the environment.ts with the gitpod URL.
+
 Install `wscat` to debug the websocket server.
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/raymondji/battle-composers-nx)
