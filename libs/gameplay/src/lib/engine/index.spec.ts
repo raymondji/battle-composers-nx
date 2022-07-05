@@ -20,50 +20,89 @@ const engineParams: EngineParams<string, string> = {
   emptyPlayerInputs: '',
   simulate,
   inputDelay: 2,
-  pauseThreshold: 3,
+  pauseThreshold: 4,
 };
 
 describe('tick', () => {
+  test('advances confirmedFrame only while inputs are confirmed', () => {
+    const state = initEngineState<string, string>('', engineParams);
+    // register local first to account for input delay
+    registerLocalInputs(state, engineParams, 'qty');
+    expect(state.confirmedFrame).toBe(0);
+
+    tick(state, engineParams);
+    expect(state.confirmedFrame).toBe(1);
+
+    tick(state, engineParams);
+    expect(state.confirmedFrame).toBe(2);
+
+    tick(state, engineParams);
+    // remote inputs are not confirmed yet for frame 2, so should not advance
+    expect(state.confirmedFrame).toBe(2);
+
+    registerRemoteInputs(state, engineParams, 'abc', 2);
+    tick(state, engineParams);
+    expect(state.confirmedFrame).toBe(3);
+  });
+
   test('resimulates unconfirmed frames', () => {
     const state = initEngineState<string, string>('', engineParams);
+    // register local first to account for input delay
+    registerLocalInputs(state, engineParams, 'qty');
+
     tick(state, engineParams);
     tick(state, engineParams);
-    expect(state.localGameState).toEqual(' (p1:,p2:) (p1:,p2:)');
-    expect(state.localFrame).toBe(2);
-    expect(state.confirmedFrame).toBe(2);
-    registerRemoteInputs(state, engineParams, 'abc', 1);
     tick(state, engineParams);
-    expect(state.confirmedFrame).toBe(2);
-    expect(state.confirmedGameState).toEqual(' (p1:,p2:) (p1:,p2:abc)');
+    expect(state.localGameState).toEqual(' (p1:,p2:) (p1:,p2:) (p1:qty,p2:)');
     expect(state.localFrame).toBe(3);
-    expect(state.localGameState).toEqual(' (p1:,p2:) (p1:,p2:abc) (p1:,p2:)');
+    expect(state.confirmedGameState).toEqual(' (p1:,p2:) (p1:,p2:)');
+    expect(state.confirmedFrame).toBe(2);
+
+    registerRemoteInputs(state, engineParams, 'abc', 2);
+    tick(state, engineParams);
+    expect(state.localGameState).toEqual(
+      ' (p1:,p2:) (p1:,p2:) (p1:qty,p2:abc) (p1:,p2:)'
+    );
+    expect(state.localFrame).toEqual(4);
+    expect(state.confirmedFrame).toBe(3);
+    expect(state.confirmedGameState).toEqual(
+      ' (p1:,p2:) (p1:,p2:) (p1:qty,p2:abc)'
+    );
   });
 
-  test('sets isWaiting to be true and stops predicting if too far ahead', () => {
-    const state = initEngineState<string, string>('', engineParams);
-    tick(state, engineParams);
-    tick(state, engineParams);
-    tick(state, engineParams);
-    const expectedGs = ' (p1:,p2:) (p1:,p2:) (p1:,p2:)';
-    expect(state.isWaiting).toBe(false);
-    expect(state.localGameState).toEqual(expectedGs);
-    expect(state.localFrame).toEqual(3);
-    expect(state.confirmedFrame).toEqual(0);
-
-    tick(state, engineParams);
-    // both should remain unchanged
-    expect(state.localGameState).toEqual(expectedGs);
-    expect(state.localFrame).toEqual(3);
-    expect(state.isWaiting).toBe(true);
-  });
-
-  test('predicts 1 frame ahead', () => {
+  test('simulates 1 local frame per tick while not paused', () => {
     const state = initEngineState<string, string>('', engineParams);
     expect(state.localFrame).toBe(0);
+
     tick(state, engineParams);
     expect(state.localGameState).toEqual(' (p1:,p2:)');
     expect(state.localFrame).toBe(1);
-    expect(state.confirmedFrame).toBe(0);
+
+    tick(state, engineParams);
+    expect(state.localGameState).toEqual(' (p1:,p2:) (p1:,p2:)');
+    expect(state.localFrame).toBe(2);
+
+    tick(state, engineParams);
+    expect(state.localGameState).toEqual(' (p1:,p2:) (p1:,p2:) (p1:,p2:)');
+    expect(state.localFrame).toBe(3);
+  });
+
+  test('sets isWaiting to be true and stops local simulation if too far ahead', () => {
+    const state = initEngineState<string, string>('', engineParams);
+    for (let i = 0; i < 6; ++i) {
+      tick(state, engineParams);
+    }
+    const expectedGs =
+      ' (p1:,p2:) (p1:,p2:) (p1:,p2:) (p1:,p2:) (p1:,p2:) (p1:,p2:)';
+    expect(state.localGameState).toEqual(expectedGs);
+    expect(state.localFrame).toEqual(6);
+    expect(state.confirmedFrame).toEqual(2);
+    expect(state.isWaiting).toBe(false);
+
+    tick(state, engineParams);
+    expect(state.localGameState).toEqual(expectedGs);
+    expect(state.localFrame).toEqual(6);
+    expect(state.isWaiting).toBe(true);
   });
 
   test('uses empty inputs if inputs missing', () => {

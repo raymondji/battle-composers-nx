@@ -182,7 +182,7 @@ export function tick<G, I>(
     state.isWaiting = false;
   }
 
-  // Predict 1 frame forward
+  // Simulate 1 frame forward
   const inputs = state.storedInputs.get(state.localFrame) ?? {};
   gs = params.simulate(
     gs,
@@ -191,6 +191,10 @@ export function tick<G, I>(
   );
   state.localFrame++;
   state.localGameState = gs;
+  if (inputsConfirmed(inputs)) {
+    state.confirmedFrame = state.localFrame;
+    state.confirmedGameState = gs;
+  }
 
   // cleanup
   for (const [f, _] of state.storedInputs) {
