@@ -41,6 +41,7 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
 
   // Init websocket connection
   useEffect(() => {
+    console.log(`connecting to url ${environment.backendWebsocketEndpoint}`);
     const ws = new WebSocket(environment.backendWebsocketEndpoint);
     const handler = () => {
       console.log(`websocket connected`);
@@ -50,7 +51,7 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
     return () => {
       ws.removeEventListener('open', handler);
     };
-  });
+  }, []);
 
   // Subscribe to events from the server
   useEffect(() => {
@@ -59,6 +60,7 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
     }
 
     websocket.onmessage = (event) => {
+      console.log('Received event, ', event);
       const message = JSON.parse(event.data);
       console.log('Received msg: ', message);
 

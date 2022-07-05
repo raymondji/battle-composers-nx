@@ -3,5 +3,5 @@
 
 export const environment = {
   production: false,
-  backendWebsocketEndpoint: 'wss://localhost:8080',
+  backendWebsocketEndpoint: `wss://8080-raymondji-battlecompose-yl63u3r4mlu.ws-us51.gitpod.io`,
 };

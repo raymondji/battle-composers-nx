@@ -18,15 +18,22 @@ wss.on('connection', function connection(ws) {
       case 'join':
         if (!message.roomId) {
           console.error('Invalid join message', message);
-          ws.send('Invalid');
+          const msg = {
+            type: 'error',
+            error: 'Invalid join message',
+          };
+          ws.send(JSON.stringify(msg));
           return;
         }
         joinRoom(message.roomId, ws);
         break;
       case 'ready':
         if (!message.roomId || !message.playerId || !message.composerIndex) {
-          console.error('Invalid ready message', message);
-          ws.send('Invalid');
+          const msg = {
+            type: 'error',
+            error: 'Invalid ready message',
+          };
+          ws.send(JSON.stringify(msg));
           return;
         }
         readyToBattle(
