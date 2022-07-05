@@ -1,6 +1,6 @@
-
-
 # Battle Composers
+
+Install `wscat` to debug the websocket server.
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/raymondji/battle-composers-nx)
 
@@ -80,8 +80,6 @@ Run `nx graph` to see a diagram of the dependencies of your projects.
 ## Further help
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
-
-
 
 ## ☁ Nx Cloud
 
