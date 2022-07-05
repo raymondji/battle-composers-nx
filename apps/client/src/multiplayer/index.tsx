@@ -31,10 +31,10 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
   const [status, setStatus] = useState<Status>('pre-join');
   const [websocket, setWebsocket] = useState<WebSocket | undefined>(undefined);
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
-  const [localPlayerId, setLocalPlayerId] = useState<string | undefined>(
+  const [localPlayerId, setLocalPlayerId] = useState<PlayerId | undefined>(
     undefined
   );
-  const [remotePlayerId, setRemotePlayerId] = useState<string | undefined>(
+  const [remotePlayerId, setRemotePlayerId] = useState<PlayerId | undefined>(
     undefined
   );
   const [p1Character, setP1Character] = useState<CharacterKeys | undefined>(
