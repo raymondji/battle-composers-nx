@@ -6,49 +6,7 @@ export function setupWebsocket(server: Server) {
   console.log('WebSocket server started');
 
   socket.on('connection', (conn) => {
-    console.log('Server received connection');
-    // function broadcast(data) {
-    // 	socket.clients.forEach((client) => {
-    // 		if (client !== conn && client.readyState === ws.OPEN) {
-    // 			client.send(data);
-    // 		}
-    // 	});
-    // }
 
-    conn.on('message', (data) => {
-      const message = JSON.parse(data.toString());
-      console.log('Server received message', message);
-
-      switch (message.type) {
-        case 'join':
-          joinRoom(message.roomId, conn);
-          break;
-        case 'ready':
-          readyToBattle(
-            message.roomId,
-            message.playerId,
-            message.composerIndex,
-            conn
-          );
-          break;
-        case 'forwardInputs':
-          forwardInputs(
-            message.roomId,
-            message.localPlayerId,
-            message.keysDown,
-            message.frame,
-            conn
-          );
-          break;
-        default:
-          console.error('Unhandled message type', message);
-      }
-    });
-
-    conn.on('close', (data) => {
-      console.log('Server received close');
-    });
-  });
 }
 
 const rooms = new Map();

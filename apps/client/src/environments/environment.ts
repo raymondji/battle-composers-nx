@@ -3,5 +3,5 @@
 
 export const environment = {
   production: false,
-  backendWebsocketEndpoint: 'ws://localhost:9229/ws',
+  backendWebsocketEndpoint: 'wss://localhost:8080',
 };
