@@ -3,12 +3,15 @@ import { CharacterKeys } from 'libs/gameplay/src/lib/characters';
 import { PlayerId } from 'libs/gameplay/src/lib/engine';
 import { environment } from '../environments/environment';
 import React, { useState, useContext, useEffect } from 'react';
+import { getOpponent } from 'libs/gameplay/src/lib/player/definitions';
 
 interface Multiplayer {
   joinRoom: (roomId: string, player: PlayerId) => void;
   setReady: (character: CharacterKeys) => void;
   sendInputs: (inputs: PlayerInputs) => void;
   setRemoteInputListener: (callback: PlayerInputsListener) => void;
+  localPlayerId: PlayerId | undefined;
+  remotePlayerId: PlayerId | undefined;
   p1Character: CharacterKeys | undefined;
   p2Character: CharacterKeys | undefined;
   status: Status;
@@ -16,7 +19,7 @@ interface Multiplayer {
 
 type PlayerInputsListener = (inputs: PlayerInputs, frame: number) => void;
 
-type Status = 'ok' | 'loading' | 'error';
+type Status = 'pre-join' | 'joined' | 'loading' | 'error';
 
 const MultiplayerContext = React.createContext<Multiplayer | undefined>(
   undefined
@@ -25,10 +28,15 @@ const MultiplayerContext = React.createContext<Multiplayer | undefined>(
 type MultiplayerProviderProps = { children: React.ReactNode };
 
 export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
-  const [status, setStatus] = useState<Status>('ok');
+  const [status, setStatus] = useState<Status>('pre-join');
   const [websocket, setWebsocket] = useState<WebSocket | undefined>(undefined);
   const [roomId, setRoomId] = useState<string | undefined>(undefined);
-  const [playerId, setPlayerId] = useState<string | undefined>(undefined);
+  const [localPlayerId, setLocalPlayerId] = useState<string | undefined>(
+    undefined
+  );
+  const [remotePlayerId, setRemotePlayerId] = useState<string | undefined>(
+    undefined
+  );
   const [p1Character, setP1Character] = useState<CharacterKeys | undefined>(
     undefined
   );
@@ -101,7 +109,8 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
 
     websocket.send(JSON.stringify(msg));
     setRoomId(roomId);
-    setPlayerId(player);
+    setLocalPlayerId(player);
+    setRemotePlayerId(getOpponent(player));
   };
 
   const setReady = (character: CharacterKeys) => {
@@ -110,11 +119,11 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
       return;
     }
 
-    console.log(`Joining room, roomId: ${roomId}, player: ${playerId}`);
+    console.log(`Joining room, roomId: ${roomId}, player: ${localPlayerId}`);
     var msg = {
       type: 'ready',
       roomId,
-      playerId,
+      localPlayerId,
       character,
     };
 
@@ -127,12 +136,12 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
     }
 
     console.log(
-      `Sending inputs, roomId: ${roomId}, player: ${playerId}, inputs: ${inputs}`
+      `Sending inputs, roomId: ${roomId}, player: ${localPlayerId}, inputs: ${inputs}`
     );
     var msg = {
       type: 'sendInputs',
       roomId,
-      playerId,
+      localPlayerId,
       inputs,
     };
 
@@ -149,6 +158,8 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
         p1Character,
         p2Character,
         status,
+        localPlayerId,
+        remotePlayerId,
       }}
     >
       {children}
