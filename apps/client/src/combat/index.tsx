@@ -1,14 +1,15 @@
-import { createGame, PlayerInputs } from '@battle-composers-nx/gameplay';
-import { createSimpleRenderer, Renderer } from '@battle-composers-nx/renderer';
+import {
+  createGame,
+  GameState,
+  PlayerInputs,
+} from '@battle-composers-nx/gameplay';
 
-import React, { useEffect, useState } from 'react';
-import { nanoid } from 'nanoid';
+import React, { useEffect } from 'react';
 import { useMultiplayer } from '../multiplayer';
 import { Page } from '../app/app';
-import { Button, Container, Input } from '@nextui-org/react';
-import { PlayerId } from 'libs/gameplay/src/lib/engine';
+import { Container } from '@nextui-org/react';
 import { characters } from 'libs/gameplay/src/lib/characters';
-import kaboom, { KaboomCtx, Key } from 'kaboom';
+import kaboom, { KaboomCtx } from 'kaboom';
 
 type CombatProps = {
   setPage: (page: Page) => void;
@@ -21,10 +22,9 @@ export function Combat({ setPage }: CombatProps) {
   // just make sure this is only run once on mount so your game state is not messed up
   useEffect(() => {
     if (!canvasRef.current) {
-      throw new Error('canvas undefined');
+      return;
     }
 
-    console.log('creating renderer');
     const k = kaboom({
       width: 960,
       height: 540,
@@ -56,7 +56,7 @@ export function Combat({ setPage }: CombatProps) {
         setPage('gameOver');
       }
     });
-  }, []);
+  }, [canvasRef.current]);
 
   console.log('rendering combat');
   return (
@@ -65,6 +65,31 @@ export function Combat({ setPage }: CombatProps) {
       <canvas ref={canvasRef} />
     </Container>
   );
+}
+
+export interface Renderer {
+  render: (gs: GameState, networkPause: boolean) => void;
+}
+
+export function createSimpleRenderer(k: KaboomCtx): Renderer {
+  k.loadSprite('battle-bg', 'assets/background/battle.png');
+  k.loadSprite('mozart', 'assets/composers/mozart.png');
+  k.loadSprite('beethoven', 'assets/composers/beethoven.png');
+
+  return {
+    render: (gs: GameState, networkPause: boolean) => {
+      simpleRender(gs, networkPause, k);
+    },
+  };
+}
+
+function simpleRender(gs: GameState, networkPause: boolean, k: KaboomCtx) {
+  k.layers(['bg', 'game', 'ui'], 'game');
+  k.add([k.sprite('battle-bg'), k.layer('bg')]);
+  k.add([
+    k.text(JSON.stringify(gs, null, 2), { size: 14, width: 320 }),
+    k.layer('ui'),
+  ]);
 }
 
 function getLocalInputs(k: KaboomCtx): PlayerInputs {

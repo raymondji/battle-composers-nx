@@ -4,7 +4,6 @@
   "projects": {
     "client": "apps/client",
     "gameplay": "libs/gameplay",
-    "renderer": "libs/renderer",
     "server": "apps/server"
   }
 }
