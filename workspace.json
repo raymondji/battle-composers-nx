@@ -3,7 +3,7 @@
   "version": 2,
   "projects": {
     "client": "apps/client",
-    "gameplay": "libs/gameplay",
-    "server": "apps/server"
+    "server": "apps/server",
+    "gameplay": "libs/gameplay"
   }
 }

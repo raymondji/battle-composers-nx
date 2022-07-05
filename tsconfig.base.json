@@ -21,7 +21,7 @@
     "paths": {
       "@battle-composers-nx/gameplay": [
         "libs/gameplay/src/index.ts"
-      ],
+      ]
     }
   },
   "exclude": [
