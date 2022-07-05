@@ -1,6 +1,6 @@
 import { Button } from '@nextui-org/react';
 import { CharacterKeys, characters } from 'libs/gameplay/src/lib/characters';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Page } from '../app/app';
 import { useMultiplayer } from '../multiplayer';
 
@@ -11,7 +11,7 @@ type CharacterSelectionProps = {
 export function CharacterSelection({ setPage }: CharacterSelectionProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const characterKeys = Object.keys(characters);
-  const { setReady } = useMultiplayer();
+  const { setReady, p1Character, p2Character } = useMultiplayer();
 
   const selectedCharacterKey = characterKeys[selectedIndex] as CharacterKeys;
   const selectedCharacter = characters[selectedCharacterKey];
@@ -32,9 +32,16 @@ export function CharacterSelection({ setPage }: CharacterSelectionProps) {
   };
 
   const startBattle = () => {
+    // TODO: show loading state until the other player has also selected
     setReady(selectedCharacterKey);
-    setPage('combat');
   };
+
+  useEffect(() => {
+    // TODO: maybe make in-battle a status to make this check nicer
+    if (p1Character && p2Character) {
+      setPage('combat');
+    }
+  });
 
   return (
     <div>

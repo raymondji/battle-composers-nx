@@ -19,7 +19,7 @@ interface Multiplayer {
 
 type PlayerInputsListener = (inputs: PlayerInputs, frame: number) => void;
 
-type Status = 'pre-join' | 'joined' | 'loading' | 'error';
+type Status = 'pre-join' | 'joined' | 'error';
 
 const MultiplayerContext = React.createContext<Multiplayer | undefined>(
   undefined
