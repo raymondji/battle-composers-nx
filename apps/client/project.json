@@ -16,7 +16,7 @@
         "polyfills": "apps/client/src/polyfills.ts",
         "tsConfig": "apps/client/tsconfig.app.json",
         "assets": ["apps/client/src/favicon.ico", "apps/client/src/assets", {
-          "input": "libs/gameplay/src/assets",
+          "input": "libs/renderer/src/assets",
           "glob": "**/*",
           "output": "assets/renderer"
         }],

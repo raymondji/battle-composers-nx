@@ -11,3 +11,16 @@ export const beethoven: Character = {
   sprite: '',
   spells: ['furElise'],
 };
+
+export const mozart: Character = {
+  name: 'Mozart',
+  sprite: '',
+  spells: ['furElise'],
+};
+
+export const characters = {
+  beethoven,
+  mozart,
+};
+
+export type CharacterKeys = keyof typeof characters;

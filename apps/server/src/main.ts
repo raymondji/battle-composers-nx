@@ -4,15 +4,14 @@
  */
 
 import * as express from 'express';
+import { setupWebsocket } from './app/websocket';
 
 const app = express();
 
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to server!' });
-});
-
 const port = process.env.port || 3333;
 const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+  console.log(`Listening at http://localhost:${port}/multiplayer`);
 });
+setupWebsocket(server);
+
 server.on('error', console.error);

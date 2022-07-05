@@ -1,4 +1,3 @@
-import e = require('express');
 import { PlayerId } from '../engine';
 import { GameState } from '../gameplay';
 import { GridObject, GridState, isColliding } from '../grid';
