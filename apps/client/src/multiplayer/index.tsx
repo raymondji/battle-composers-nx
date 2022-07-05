@@ -14,7 +14,7 @@ interface Multiplayer {
   status: Status;
 }
 
-type PlayerInputsListener = (inputs: PlayerInputs) => void;
+type PlayerInputsListener = (inputs: PlayerInputs, frame: number) => void;
 
 type Status = 'ok' | 'loading' | 'error';
 
@@ -78,7 +78,7 @@ export function MultiplayerProvider({ children }: MultiplayerProviderProps) {
             console.error('no remote input listener', message);
             return;
           }
-          remoteInputListener(message.inputs);
+          remoteInputListener(message.inputs, message.frame);
           break;
         default:
           console.error('Client received unknown message', message);

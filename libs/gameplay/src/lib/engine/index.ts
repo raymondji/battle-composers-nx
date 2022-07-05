@@ -1,5 +1,5 @@
 const DEFAULT_INPUT_DELAY = 3;
-const DEFAULT_PAUSE_THRESHOLD = 12;
+const DEFAULT_PAUSE_THRESHOLD = 120;
 
 export type MultiplayerRollbackGameEngine<G, I> = {
   tick(): G;
@@ -146,6 +146,7 @@ export function registerLocalInputs<G, I>(
     }
     inputs.p2 = playerInputs;
   }
+  console.log('registered local inputs for frame', frame, playerInputs);
   return frame;
 }
 

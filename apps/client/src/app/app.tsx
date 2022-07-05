@@ -2,6 +2,7 @@
 import { Container } from '@nextui-org/react';
 import { useState } from 'react';
 import { CharacterSelection } from '../characterSelect';
+import { Combat } from '../combat';
 import { Lobby } from '../lobby';
 import styles from './app.module.scss';
 
@@ -16,7 +17,7 @@ export function App() {
     case 'characterSelect':
       return <CharacterSelection setPage={setPage} />;
     case 'combat':
-      return <Container>Not implemented</Container>;
+      return <Combat setPage={setPage} />;
     default:
       return <Container>Not implemented</Container>;
   }
